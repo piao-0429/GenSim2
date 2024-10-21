@@ -19,7 +19,7 @@ from gensim2.env.utils.common import merge_dict_spaces
 
 
 class GenSimBaseEnv(gym.Env):
-    SUPPORTED_OBS_MODES = ("state", "none", "image", "pointcloud")
+    SUPPORTED_OBS_MODES = ("state", "none", "image", "pointcloud", "pcd_img")
 
     def __init__(self, obs_mode="none", num_pcd=10240):
 
@@ -90,6 +90,8 @@ class GenSimBaseEnv(gym.Env):
             obs = self.get_obs_images()
         elif self.obs_mode == "pointcloud":
             obs = self.get_obs_pcd()
+        elif self.obs_mode == "pcd_img":
+            obs = self.get_obs_pcd_img()
         else:
             raise NotImplementedError(self.obs_mode)
 
@@ -280,6 +282,9 @@ class GenSimBaseEnv(gym.Env):
 
     def get_images(self):
         raise NotImplementedError
+    
+    def get_pcds(self):
+        raise NotImplementedError
 
     def get_oracle_state(self):
         oracle_state = self.get_robot_state()  # (15,)
@@ -299,6 +304,15 @@ class GenSimBaseEnv(gym.Env):
         return OrderedDict(
             state=self.get_oracle_state(),
             pointcloud=self.get_pcds(),
+        )
+        
+    def get_obs_pcd_img(self):
+        self.update_render()
+
+        return OrderedDict(
+            state=self.get_oracle_state(),
+            pointcloud=self.get_pcds(),
+            image = self.get_images()
         )
 
     def get_robot_state(self):

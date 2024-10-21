@@ -97,16 +97,13 @@ def env_sample(env_names, num_episodes, args, ret_queue):
                 for i in range(args.max_steps):
                     action = expert_planner.get_action()
                     if args.save:
-                        # remove segmentation mask from obs
-                        if not args.seg:
-                            del obs["pointcloud"]["seg"]
 
                         step = {
                             "obs": obs,
                             "action": action,
                         }
                         sub_steps.append(step)
-                    obs, reward, done, info = env.step(action)
+                    obs, reward, done, info = env.step(action, whole_eps=args.whole_eps)
                     if args.render:
                         env.render()
 

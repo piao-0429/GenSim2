@@ -187,7 +187,7 @@ class SapienEnv(SapienSim, GenSimBaseEnv):
             if self.cam_type == "default":
                 rgba = cam.get_float_texture("Color")
                 position = cam.get_float_texture("Position")
-                seg = cam.get_uint32_texture("Segmentation").astype(np.uint8)
+                # seg = cam.get_uint32_texture("Segmentation").astype(np.uint8)
 
                 # Each pixel is (x, y, z, z_buffer_depth) in OpenGL camera space
                 position[..., 3] = position[..., 2] < 0  # (512,512,4)
@@ -204,7 +204,7 @@ class SapienEnv(SapienSim, GenSimBaseEnv):
                 rgb = rgba[..., :3]
                 rgb = np.clip(rgb * 255, 0, 255).astype(np.uint8)
                 cam_pcd["colors"] = rgb.reshape(-1, 3)
-                cam_pcd["seg"] = seg.reshape(-1, 4)
+                # cam_pcd["seg"] = seg.reshape(-1, 4)
 
             elif self.cam_type == "real":
                 pc = cam.get_pointcloud(with_rgb=True)
@@ -224,7 +224,7 @@ class SapienEnv(SapienSim, GenSimBaseEnv):
                 rgb = pc[..., 3:]
                 rgb = np.clip(rgb * 255, 0, 255).astype(np.uint8)
                 cam_pcd["colors"] = rgb
-                cam_pcd["seg"] = np.zeros_like(rgb)
+                # cam_pcd["seg"] = np.zeros_like(rgb)
 
             pointcloud_obs[cam_uid] = cam_pcd
 
@@ -235,10 +235,11 @@ class SapienEnv(SapienSim, GenSimBaseEnv):
         self.take_picture()
 
         pointcloud_obs = self.get_pcds_from_cameras()
-        pointcloud_obs = self.merge_pointclouds(pointcloud_obs)
-        pointcloud_obs = pcd_downsample(
-            pointcloud_obs, num=self.num_pcd, method="fps", bound_clip=True
+        merged_pointcloud_obs = self.merge_pointclouds(pointcloud_obs.copy())
+        merged_pointcloud_obs = pcd_downsample(
+            merged_pointcloud_obs, num=self.num_pcd, method="fps", bound_clip=True
         )
+        pointcloud_obs["merged"] = merged_pointcloud_obs
 
         return pointcloud_obs
 

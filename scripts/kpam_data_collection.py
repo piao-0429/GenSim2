@@ -18,6 +18,7 @@ parser.add_argument("--num_episodes", type=int, default=100)
 parser.add_argument("--max_steps", type=int, default=500)
 parser.add_argument("--load_from_cache", action="store_true")
 parser.add_argument("--dataset", type=str, default="gensim2")
+parser.add_argument("--whole_eps", action="store_true")
 
 envs = [
     "OpenBox",
@@ -107,7 +108,7 @@ if __name__ == "__main__":
                             "action": action,
                         }
                         sub_steps.append(step)
-                    obs, reward, done, info = env.step(action)
+                    obs, reward, done, info = env.step(action, whole_eps=args.whole_eps)
 
                     if args.render:
                         env.render()
